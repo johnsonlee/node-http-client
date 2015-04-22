@@ -1,0 +1,25 @@
+{
+    "name" : "node-http-client",
+    "description" : "HTTP Client for Node",
+    "version" : "0.0.1",
+    "repository" : {
+        "type" : "git",
+        "url" : "git@github.com:sdklite/node-http-client.git"
+    },
+    "keywords" : [
+        "http",
+        "client"
+    ],
+    "bugs" : {
+        "url" : "https://github.com/sdklite/node-http-client/issues"
+    },
+    "author" : {
+        "name" : "Johnson Lee",
+        "email" : "g.johnsonlee@gmail.com"
+    },
+    "dependencies" : {
+        "jsdom" : "3.1.2",
+        "jquery" : ">=2.1"
+    },
+    "license" : "MIT"
+}
