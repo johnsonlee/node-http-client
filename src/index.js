@@ -5,6 +5,14 @@ var JsDOM = require('jsdom');
 var Utility = require('util');
 var IconvLite = require('iconv-lite');
 var QueryString = require('querystring');
+var Cookie = require('./Cookie');
+var CookieStore = require('./CookieStore');
+
+function HttpClient() {
+
+    this.$store = new CookieStore();
+
+}
 
 (function() {
 
@@ -22,14 +30,15 @@ var QueryString = require('querystring');
         var self = this;
         var url = URL.parse(options.url);
         var ssl = /^https:$/.test(url.protocol);
-        var req = (ssl ? HTTPS : HTTP).request({
+        var opt = {
             auth     : url.auth,
             method   : options.method || 'GET',
             hostname : url.hostname,
             port     : url.port || (ssl ? 443 : 80),
             path     : url.path,
             headers  : options.headers,
-        }, function(res) {
+        };
+        var req = (ssl ? HTTPS : HTTP).request(opt, function(res) {
             if ('function' !== typeof cb) {
                 return;
             }
@@ -38,7 +47,12 @@ var QueryString = require('querystring');
             var length = 0;
 
             // processing cookies
-            self.$processCookies(res.headers['set-cookie']);
+            self.$processCookies(res.headers['set-cookie'], {
+                hostname : opt.hostname,
+                port     : opt.port,
+                path     : opt.path,
+                secure   : ssl,
+            });
 
             res.on('data', function(chunk) {
                 length += chunk.length;
@@ -103,11 +117,18 @@ var QueryString = require('querystring');
         req.end();
     };
 
-    this.$processCookies = function(cookies) {
+    this.toJSON = function() {
+        return JSON.stringify({});
+    };
+
+    this.$processCookies = function(cookies, origin) {
         if (!cookies)
             return;
 
-        // TODO
+        for (var i = 0, n = cookies.length; i < n; i++) {
+            var cookie = Cookie.parse(cookies[i], origin);
+            this.$store.addCookie(cookie);
+        }
     };
 
-}).call(module.exports);
+}).call((module.exports = HttpClient).prototype);
